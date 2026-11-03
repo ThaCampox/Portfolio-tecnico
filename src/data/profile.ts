@@ -68,31 +68,19 @@ export const profile = {
     { title: { pt: "Google Security Operations - Deep Dive", en: "Google Security Operations - Deep Dive" }, place: "Google", period: "fev 2026", url: "https://drive.google.com/file/d/1_BiSgjjXSPXQ4HrmKW0siQbria1S975-/view" },
     { title: { pt: "Google Security Operations - Fundamentals", en: "Google Security Operations - Fundamentals" }, place: "Google", period: "fev 2026", url: "https://drive.google.com/file/d/1Df-cx5_5Z_Rdj8bXAFPjNIa2PyibenGl/view" },
     { title: { pt: "Introduction Google Security Operations", en: "Introduction Google Security Operations" }, place: "Google", period: "fev 2026", url: "https://drive.google.com/file/d/1Df-cx5_5Z_Rdj8bXAFPjNIa2PyibenGl/view" },
-    
-    // ⚠️ O LINK DO B3 PRECISA SER UM LINK DA INTERNET (Google Drive, por exemplo). Troque quando puder.
     { title: { pt: "Segurança Cibernética e Segurança da Informação", en: "Cybersecurity and Information Security" }, place: "B3", period: "jan 2026", url: "#" },
-    
     { title: { pt: "Introduction to the Threat Landscape 3.0", en: "Introduction to the Threat Landscape 3.0" }, place: "Fortinet", period: "dez 2025", url: "https://training.fortinet.com/pluginfile.php/1/tool_certificate/issues/1766411275/1241126749TC.pdf" },
     { title: { pt: "Getting Started in Cybersecurity", en: "Getting Started in Cybersecurity" }, place: "Fortinet", period: "dez 2025", url: "https://training.fortinet.com/pluginfile.php/1/tool_certificate/issues/1766156042/5582234272TC.pdf" },
     { title: { pt: "AWS Identity and Access Management - Basics", en: "AWS Identity and Access Management - Basics" }, place: "AWS", period: "dez 2025", url: "https://skillbuilder.aws/44177149-6792-4ee5-a837-30cc27f44df0" },
     { title: { pt: "Introduction to Database Migration", en: "Introduction to Database Migration" }, place: "AWS", period: "dez 2025", url: "https://skillbuilder.aws/98dd0e04-4d18-4edc-8a87-2a3556bed049" },
-    
-    // ⚠️ O LINK DO DEVOPS ESTAVA DA FORTINET. TROQUE PELO DA AWS.
     { title: { pt: "Getting Started with DevOps on AWS", en: "Getting Started with DevOps on AWS" }, place: "AWS", period: "dez 2025", url: "#" },
-    
     { title: { pt: "Fundamentos do Hardware do Computador", en: "Computer Hardware Fundamentals" }, place: "Cisco", period: "dez 2025", url: "https://drive.google.com/file/d/1Dd8d-vYpafE3pQdg07GFpevkf7YmCFin/view" },
     { title: { pt: "MTA: Introduction to Programming Using Python", en: "MTA: Introduction to Programming Using Python" }, place: "Mackenzie", period: "jan 2025", url: "https://drive.google.com/file/d/1f1CPsFuCMJOmcQakGE_878vtDmSNE_om/view" },
     { title: { pt: "Privacidade e Proteção de Dados (LGPD)", en: "Data Privacy and Protection (LGPD)" }, place: "Senai São Paulo", period: "mar 2024", url: "https://drive.google.com/file/d/1TtLpcrC-dUvpwY8kFOKrt5dysHXAJfs8/view" },
-    
-    // ⚠️ O LINK DA ÉTICA NA IA ESTAVA IGUAL DA LGPD. TROQUE QUANDO PUDER.
     { title: { pt: "Ética na Inteligência Artificial", en: "Ethics in Artificial Intelligence" }, place: "Senai São Paulo", period: "set 2024", url: "#" },
-    
     { title: { pt: "Por Dentro da Segurança Cibernética", en: "Inside Cybersecurity" }, place: "Senai São Paulo", period: "set 2024", url: "https://drive.google.com/file/d/1i58_Lq1mPILImOlAqtZU6ugbT1MkTmja/view" },
     { title: { pt: "Microsoft Power BI", en: "Microsoft Power BI" }, place: "Senai São Paulo", period: "set 2024", url: "https://drive.google.com/file/d/12iMM5wvt3UqaEYElQNdz-b3WVOdZM8pB/view" },
-    
-    // ⚠️ O LINK DO GCP ESTAVA IGUAL DA CISCO. TROQUE QUANDO PUDER.
     { title: { pt: "Implantação de Serviços em Nuvem (GCP)", en: "Cloud Services Deployment (GCP)" }, place: "Senai São Paulo", period: "abr 2024", url: "#" },
-    
     { title: { pt: "Inglês Técnico", en: "Technical English" }, place: "Senai São Paulo", period: "jan 2024", url: "https://drive.google.com/file/d/1Ux8xy9UhESLst-lWtcteP0fqorAyzO13/view" },
     { title: { pt: "Introdução ao Hacking e Pentest 2.0", en: "Introduction to Hacking and Pentest 2.0" }, place: "Solyd", period: "dez 2022", url: "https://drive.google.com/file/d/1ZOfSW3pRKTG48fh1jInupiac7qr-FfNn/view" }
   ],
@@ -101,4 +89,13 @@ export const profile = {
     linkedin: "https://www.linkedin.com/in/thaina-campos-7a3381211/",
     whatsapp: "https://wa.me/5511933367309"
   }
+};
+
+// 👇 ISSO AQUI É O QUE ESTAVA FALTANDO 👇
+export type Entry = {
+  title: { pt: string; en: string };
+  place: string;
+  period: string;
+  description?: { pt: string; en: string };
+  url?: string;
 };
