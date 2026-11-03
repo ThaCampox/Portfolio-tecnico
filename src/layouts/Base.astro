@@ -4,7 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import SearchDialog from '../components/SearchDialog.astro';
 import { ui, languages, type Lang } from '../i18n/ui';
-import { base, asset } from '../lib/url';
+import { asset } from '../lib/url'; // <-- 'base' removido daqui
 
 interface Props { lang: Lang; title: string; description?: string }
 const { lang, title, description } = Astro.props;
