@@ -1,6 +1,6 @@
 ---
 import { ui, type Lang } from '../i18n/ui';
-import { l, asset } from '../lib/url'; // <-- 'base' removido daqui
+import { l, asset } from '../lib/url'; 
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -15,11 +15,11 @@ if (langIndex !== -1) {
 }
 const switchHref = segments.join('/');
 
+// ABA DE DOCUMENTAÇÃO REMOVIDA DAQUI
 const nav = [
   { href: l(lang), label: T.nav.home, exact: true },
   { href: l(lang, 'projects/'), label: T.nav.projects },
   { href: l(lang, 'areas/'), label: T.nav.areas },
-  { href: l(lang, 'docs/'), label: T.nav.docs },
   { href: l(lang, 'about/'), label: T.nav.about },
 ];
 const active = (n: (typeof nav)[number]) => (n.exact ? here === n.href : here.startsWith(n.href));

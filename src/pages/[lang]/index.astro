@@ -1,38 +1,20 @@
 ---
 import Base from '../../layouts/Base.astro';
-import DocRow from '../../components/DocRow.astro';
 import { ui, langPaths, type Lang } from '../../i18n/ui';
 import { areas } from '../../data/areas';
 import { profile } from '../../data/profile';
-import { getDocs, fmtDate } from '../../lib/docs';
 import { l } from '../../lib/url';
 
 export function getStaticPaths() { return langPaths(); }
 const lang = Astro.params.lang as Lang;
 const T = ui[lang];
-const docs = await getDocs(lang);
-const first = docs[0];
-const count = (id: string) => docs.filter((d) => d.entry.data.area === id).length;
-
-const spec: [string, string][] = first
-  ? [
-      [T.doc.id, first.entry.data.docId],
-      [T.doc.category, areas.find((a) => a.id === first.entry.data.area)!.name[lang]],
-      [T.doc.revision, first.entry.data.revision],
-      [T.doc.origin, T.labels.origin[first.entry.data.origin]],
-      [T.doc.updated, fmtDate(first.entry.data.updated, lang)],
-    ]
-  : [];
 ---
 <Base lang={lang} title={ui[lang].siteName} description={T.home.lead}>
   
   <!-- HERO SECTION -->
-  <section class="mx-auto grid max-w-6xl gap-12 px-4 pb-20 pt-16 md:grid-cols-[1.1fr_0.9fr] md:items-center md:pt-24">
-    
-    <!-- Texto Hero -->
-    <div>
-      <!-- Badge do topo: Branco no light, Escuro no dark -->
-      <div class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-mono text-slate-600 dark:border-slate-700 dark:bg-slate-800/50 dark:text-cyan-400 mb-6">
+  <section class="mx-auto max-w-6xl px-4 pb-20 pt-16 md:pt-24">
+    <div class="max-w-3xl">
+      <div class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-mono text-slate-700 dark:border-slate-700 dark:bg-slate-800/50 dark:text-cyan-400 mb-6">
         <span class="relative flex h-2 w-2">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500 dark:bg-cyan-500"></span>
@@ -40,60 +22,24 @@ const spec: [string, string][] = first
         {profile.name} — {profile.role[lang]}
       </div>
       
-      <!-- Título: Azul Escuro no light, Neon no dark -->
       <h1 class="text-4xl font-extrabold leading-[1.1] tracking-tight md:text-6xl bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-700 dark:from-cyan-400 dark:via-blue-500 dark:to-purple-500 bg-clip-text text-transparent pb-2">
         {T.home.headline}
       </h1>
       
-      <!-- Texto: Cinza Escuro no light, Cinza Claro no dark -->
-      <p class="mt-6 max-w-[52ch] text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+      <p class="mt-6 text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
         {T.home.lead}
       </p>
       
-      <!-- Botões de Ação -->
       <div class="mt-10 flex flex-wrap gap-4">
-        <a href={l(lang, 'docs/')} class="group relative inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-blue-500 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)]">
-          {T.home.ctaDocs}
+        <a href={l(lang, 'projects/')} class="group relative inline-flex items-center justify-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-blue-500 hover:shadow-[0_0_20px_rgba(37,99,235,0.4)]">
+          {T.home.ctaProjects}
           <svg class="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        <a href={l(lang, 'projects/')} class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200 dark:hover:bg-slate-800">
-          {T.home.ctaProjects}
+        <a href={l(lang, 'about/')} class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200 dark:hover:bg-slate-800">
+          {lang === 'pt' ? 'Sobre mim' : 'About me'}
         </a>
       </div>
     </div>
-
-    <!-- Card em Destaque: Fundo Branco no light, Vidro no dark -->
-    {first && (
-      <a href={l(lang, `docs/${first.slug}/`)} class="group relative block rounded-2xl border border-slate-200 bg-white p-1 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-500 hover:shadow-lg dark:border-slate-700/50 dark:bg-slate-800/30 dark:backdrop-blur-sm dark:hover:border-cyan-500/50 dark:hover:shadow-[0_0_30px_rgba(34,211,238,0.15)]">
-        
-        <div class="absolute inset-0 rounded-2xl bg-gradient-to-b from-slate-100 to-transparent opacity-0 transition-opacity group-hover:opacity-100 dark:from-white/5 dark:to-transparent"></div>
-        
-        <div class="relative rounded-xl bg-slate-50 p-6 sm:p-8 dark:bg-[#0d1424]/80">
-          <div class="flex items-center justify-between mb-4">
-            <span class="font-mono text-xs font-semibold text-blue-700 bg-blue-100 px-2.5 py-1 rounded border border-blue-200 dark:text-cyan-400 dark:bg-cyan-400/10 dark:border-cyan-400/20">
-              {first.entry.data.docId}
-            </span>
-            <span class="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-              <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
-              {T.labels.status[first.entry.data.status]}
-            </span>
-          </div>
-          
-          <h2 class="text-xl font-bold text-slate-900 leading-snug group-hover:text-blue-600 dark:text-white dark:group-hover:text-cyan-400 transition-colors">
-            {first.entry.data.title}
-          </h2>
-          
-          <dl class="mt-6 space-y-3 text-sm border-t border-slate-200 pt-5 dark:border-slate-700/50">
-            {spec.map(([k, v]) => (
-              <div class="flex justify-between items-center gap-4">
-                <dt class="text-slate-500 dark:text-slate-500">{k}</dt>
-                <dd class="font-medium text-slate-800 text-right dark:text-slate-300">{v}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </a>
-    )}
   </section>
 
   <!-- ÁREAS TÉCNICAS -->
@@ -104,46 +50,17 @@ const spec: [string, string][] = first
     </div>
     
     <ul class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {areas.map((a) => {
-        const c = count(a.id);
-        return (
-          <li>
-            <!-- Caixas de Áreas: Brancas no light, Escuras no dark -->
-            <a href={l(lang, `areas/${a.id}/`)} class="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:border-blue-500 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/40 dark:hover:border-blue-500/50 dark:hover:bg-slate-800/60">
-              <div class="flex items-start justify-between gap-4">
-                <span class="font-semibold text-slate-900 group-hover:text-blue-600 dark:text-slate-200 dark:group-hover:text-blue-400 transition-colors">{a.name[lang]}</span>
-                <span class:list={[
-                  "flex h-6 items-center justify-center rounded-full px-2.5 text-xs font-bold",
-                  c > 0 
-                    ? "bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/30" 
-                    : "bg-slate-100 text-slate-500 border border-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:border-slate-700"
-                ]}>
-                  {c}
-                </span>
-              </div>
-              <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 line-clamp-2">{a.description[lang]}</p>
-            </a>
-          </li>
-        );
-      })}
+      {areas.map((a) => (
+        <li>
+          <a href={l(lang, `areas/${a.id}/`)} class="group flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:border-blue-500 hover:shadow-md dark:border-slate-800 dark:bg-slate-900/40 dark:hover:border-blue-500/50 dark:hover:bg-slate-800/60">
+            <div class="flex items-start justify-between gap-4">
+              <span class="font-semibold text-slate-900 group-hover:text-blue-600 dark:text-slate-200 dark:group-hover:text-blue-400 transition-colors">{a.name[lang]}</span>
+            </div>
+            <p class="mt-2 text-sm text-slate-600 dark:text-slate-400 line-clamp-2">{a.description[lang]}</p>
+          </a>
+        </li>
+      ))}
     </ul>
-  </section>
-
-  <!-- DOCUMENTAÇÃO RECENTE -->
-  <section class="mx-auto max-w-6xl px-4 py-16">
-    <div class="mb-8 flex items-baseline justify-between">
-      <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{T.home.latestTitle}</h2>
-      <a href={l(lang, 'docs/')} class="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1 group">
-        {T.home.viewAll}
-        <svg class="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-    </div>
-    
-    <div class="rounded-xl border border-slate-200 bg-white px-4 sm:px-6 dark:border-slate-800 dark:bg-slate-900/20">
-      <ul class="divide-y divide-slate-100 dark:divide-slate-800/50">
-        {docs.slice(0, 5).map((item) => <DocRow lang={lang} item={item} />)}
-      </ul>
-    </div>
   </section>
 
   <!-- ORIGEM DO CONTEÚDO -->
@@ -151,13 +68,6 @@ const spec: [string, string][] = first
     <div class="rounded-2xl border border-slate-200 bg-slate-50 p-8 md:p-10 dark:border-slate-800 dark:bg-gradient-to-br dark:from-slate-900/50 dark:to-transparent">
       <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{T.home.originTitle}</h2>
       <p class="mt-4 max-w-[65ch] text-slate-600 dark:text-slate-400 leading-relaxed">{T.home.originText}</p>
-      <ul class="mt-6 flex flex-wrap gap-2 text-sm">
-        {Object.values(T.labels.origin).map((o) => (
-          <li class="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-slate-700 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300">
-            {o}
-          </li>
-        ))}
-      </ul>
     </div>
   </section>
 </Base>
