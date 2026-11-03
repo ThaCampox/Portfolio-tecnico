@@ -74,11 +74,10 @@ const docs = await getDocs(lang);
           href={`/${lang}/docs/${item.slug}/`}
           data-doc
           data-area={item.entry.data.area}
-          data-text={`${item.entry.data.title.toLowerCase()} ${item.entry.data.description?.toLowerCase() || ''} ${item.entry.data.docId.toLowerCase()} ${item.entry.data.area.toLowerCase()}`}
+          data-text={`${item.entry.data.title.toLowerCase()} ${item.entry.data.summary?.toLowerCase() || ''} ${item.entry.data.docId.toLowerCase()} ${item.entry.data.area.toLowerCase()}`}
           class="group relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-6 border-b border-slate-200 dark:border-slate-800 transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50 sm:px-4 sm:-mx-4 rounded-lg"
         >
           <div class="flex-1">
-            <!-- Cabeçalho do item: ID + Área + Status -->
             <div class="flex flex-wrap items-center gap-3 mb-2">
               <span class="font-mono text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                 {item.entry.data.docId}
@@ -91,18 +90,15 @@ const docs = await getDocs(lang);
               </span>
             </div>
             
-            <!-- Título -->
             <h2 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {item.entry.data.title}
             </h2>
             
-            <!-- Descrição -->
             <p class="mt-1.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2">
-              {item.entry.data.description}
+              {item.entry.data.summary}
             </p>
           </div>
           
-          <!-- Seta indicativa -->
           <div class="hidden sm:flex shrink-0 items-center justify-center h-10 w-10 rounded-full border border-slate-200 dark:border-slate-700 text-slate-400 group-hover:border-blue-500 group-hover:text-blue-600 dark:group-hover:border-blue-400 dark:group-hover:text-blue-400 transition-all">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </div>
@@ -110,7 +106,6 @@ const docs = await getDocs(lang);
       ))}
     </div>
     
-    <!-- Mensagem de vazio -->
     <p id="doc-empty" hidden class="mt-12 text-center text-slate-500 dark:text-slate-400 py-12 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900/50">
       {T.docs.empty}
     </p>
