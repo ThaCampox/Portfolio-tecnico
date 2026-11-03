@@ -1,48 +1,42 @@
-# Thaina Campos — Technical Portfolio
+# Thaina Campos | Technical Portfolio
 
-Portfólio técnico bilíngue (PT/EN): apresentação, biblioteca de documentação operacional e laboratórios.
-Stack: Astro 5 · TypeScript · Tailwind CSS 4 · MDX · Mermaid · GitHub Pages.
+Bem-vindo ao meu portfólio técnico! Este espaço foi criado para documentar projetos, procedimentos operacionais, laboratórios e soluções passo a passo nas áreas de Infraestrutura, Suporte de TI e Cibersegurança.
 
-## Executar localmente
+🔗 **[Acesse o portfólio online](https://thacampox.github.io/Portfolio-tecnico/)**
 
-```bash
-npm install
-npm run dev        # http://localhost:4321
-npm run build      # checagem de tipos + build estático em ./dist
-npm run preview
-```
+---
 
-Requer Node.js 20.3 ou superior (recomendado 22).
+### 🎯 Áreas de Atuação
 
-## Publicar no GitHub Pages
+Aqui você encontrará documentações práticas e laboratórios focados em:
 
-1. Crie o repositório no GitHub e envie o código para a branch `main`.
-2. Em **Settings → Pages → Build and deployment**, escolha **GitHub Actions**.
-3. A cada push em `main`, o workflow `.github/workflows/deploy.yml` publica o site.
-4. Se o repositório se chamar `thacampox.github.io`, mude `BASE_PATH` para `/` no workflow.
+*   🖥️ **Suporte Técnico:** Diagnóstico de hardware, software e atendimento.
+*   🌐 **Infraestrutura:** Redes, serviços Windows, monitoramento e ambientes.
+*   🛡️ **Cybersecurity / SOC:** Triagem de alertas, investigação de incidentes e análise de logs.
+*   📊 **NOC:** Monitoramento de disponibilidade e tratamento de alertas.
+*   ⚙️ **Automação:** Scripts em PowerShell para inventário e diagnóstico.
 
-## Adicionar uma documentação
+---
 
-1. Copie `src/content/docs/pt/doc-sup-001-usb-hid.mdx` e `src/content/docs/en/...` com um novo nome.
-2. Ajuste o frontmatter (`docId`, `area`, `origin`, `status`...). O esquema está em `src/content.config.ts`.
-3. Use `<Evidence />` para prints com legenda e `<Callout />` para avisos.
-4. Troque `status: example` por `published` somente quando o conteúdo for real e revisado.
+### 💻 Tecnologias Utilizadas
 
-## Regras de publicação
+Este portfólio foi construído com um stack moderno focado em performance e documentação:
 
-- Nunca publique IPs internos, nomes de clientes, domínios privados, credenciais ou dados de usuários.
-- Anonimize logs, nomes de máquinas e identificadores. Não publique prints de sistemas corporativos sem autorização.
-- Declare a origem de cada documento: `professional`, `lab` ou `study`.
+*   **Framework:** [Astro](https://astro.build/)
+*   **Estilização:** [Tailwind CSS](https://tailwindcss.com/)
+*   **Tipografia:** IBM Plex Sans & IBM Plex Mono
+*   **Linguagens:** TypeScript & Markdown (MDX)
+*   **Diagramas:** Mermaid.js
 
-## Estrutura
+---
 
-```
-src/components   Header, Footer, DocRow, Evidence, Callout, SearchDialog
-src/layouts      Base, DocsLayout
-src/pages/[lang] Páginas em /pt e /en
-src/content/docs Documentação em MDX (uma pasta por idioma)
-src/data         Áreas, backlog de projetos e perfil
-src/i18n         Textos da interface
-scripts          Scripts PowerShell e Python do portfólio
-diagrams         Diagramas de rede e infraestrutura
-```
+### 🤝 Vamos nos conectar?
+
+Estou sempre aberta a trocar ideias sobre tecnologia, infraestrutura e segurança.
+
+*   💼 [LinkedIn](https://www.linkedin.com/in/thaina-campos-7a3381211/)
+*   🐙 [GitHub](https://github.com/ThaCampox)
+*   📱 [WhatsApp](https://wa.me/5511933367309)
+
+---
+*Este projeto prioriza a segurança. Nenhum dado sensível, IP interno ou nome de cliente é publicado nestas documentações.*
