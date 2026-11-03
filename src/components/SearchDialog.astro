@@ -1,0 +1,77 @@
+---
+import { ui, type Lang } from '../i18n/ui';
+import { l } from '../lib/url';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = ui[lang].search;
+---
+<dialog id="search-dialog" data-src={l(lang, 'search.json')} data-empty={T.empty} data-hint={T.hint}
+  class="m-auto mt-[10vh] w-[min(40rem,92vw)] rounded-lg border border-line bg-bg p-0 shadow-xl">
+  <div class="flex items-center gap-2 border-b border-line p-3">
+    <input id="search-input" type="search" autocomplete="off" placeholder={T.placeholder} aria-label={T.title}
+      class="w-full bg-transparent px-2 py-1.5 text-base outline-none" />
+    <button type="button" data-search-close class="rounded border border-line px-2 py-1 text-xs text-muted hover:text-ink">{T.close}</button>
+  </div>
+  <ul id="search-results" class="max-h-[55vh] overflow-y-auto p-2" aria-live="polite"></ul>
+</dialog>
+
+<script>
+  type Item = { title: string; summary: string; docId: string; area: string; url: string; tags: string[]; text: string };
+  const dlg = document.getElementById('search-dialog') as HTMLDialogElement;
+  const input = document.getElementById('search-input') as HTMLInputElement;
+  const list = document.getElementById('search-results') as HTMLUListElement;
+  let items: Item[] | null = null;
+
+  const norm = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+  async function load() {
+    if (items) return items;
+    try { items = await (await fetch(dlg.dataset.src!)).json(); } catch { items = []; }
+    return items!;
+  }
+
+  function show(msg: string) {
+    list.innerHTML = '';
+    const li = document.createElement('li');
+    li.className = 'px-3 py-6 text-center text-sm text-muted';
+    li.textContent = msg;
+    list.append(li);
+  }
+
+  async function run() {
+    const q = norm(input.value.trim());
+    if (!q) return show(dlg.dataset.hint!);
+    const data = await load();
+    const terms = q.split(/\s+/);
+    const hits = data
+      .map((it) => {
+        const head = norm(`${it.title} ${it.docId} ${it.tags.join(' ')} ${it.summary}`);
+        const body = norm(it.text);
+        if (!terms.every((t) => head.includes(t) || body.includes(t))) return null;
+        return { it, score: terms.reduce((s, t) => s + (head.includes(t) ? 2 : 1), 0) };
+      })
+      .filter(Boolean)
+      .sort((a, b) => b!.score - a!.score) as { it: Item; score: number }[];
+    if (!hits.length) return show(dlg.dataset.empty!);
+    list.innerHTML = '';
+    for (const { it } of hits.slice(0, 10)) {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = it.url;
+      a.className = 'block rounded px-3 py-2 hover:bg-surface';
+      const t = document.createElement('span'); t.className = 'block font-medium'; t.textContent = it.title;
+      const m = document.createElement('span'); m.className = 'block text-sm text-muted'; m.textContent = `${it.docId} — ${it.summary}`;
+      a.append(t, m); li.append(a); list.append(li);
+    }
+  }
+
+  const open = () => { dlg.showModal(); input.focus(); run(); };
+  document.querySelectorAll('[data-search-open]').forEach((b) => b.addEventListener('click', open));
+  dlg.querySelector('[data-search-close]')?.addEventListener('click', () => dlg.close());
+  dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+  dlg.addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); dlg.close(); } });
+  input.addEventListener('input', run);
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); dlg.open ? dlg.close() : open(); }
+  });
+</script>

@@ -1,0 +1,21 @@
+---
+import { render } from 'astro:content';
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import { languages, type Lang } from '../../../i18n/ui';
+import { getDocs } from '../../../lib/docs';
+
+export async function getStaticPaths() {
+  const out = [];
+  for (const lang of Object.keys(languages) as Lang[]) {
+    for (const item of await getDocs(lang)) out.push({ params: { lang, slug: item.slug }, props: { item } });
+  }
+  return out;
+}
+
+const lang = Astro.params.lang as Lang;
+const { item } = Astro.props;
+const { Content, headings } = await render(item.entry);
+---
+<DocsLayout lang={lang} item={item} headings={headings}>
+  <Content />
+</DocsLayout>

@@ -1,0 +1,29 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { ui, langPaths, type Lang } from '../../../i18n/ui';
+import { areas } from '../../../data/areas';
+import { getDocs } from '../../../lib/docs';
+import { l } from '../../../lib/url';
+
+export function getStaticPaths() { return langPaths(); }
+const lang = Astro.params.lang as Lang;
+const T = ui[lang];
+const docs = await getDocs(lang);
+---
+<Base lang={lang} title={T.areas.title} description={T.areas.lead}>
+  <div class="mx-auto max-w-6xl px-4 py-12">
+    <h1 class="text-3xl font-semibold md:text-4xl">{T.areas.title}</h1>
+    <p class="mt-3 max-w-[65ch] text-muted">{T.areas.lead}</p>
+    <ul class="mt-8 border-t border-line">
+      {areas.map((a) => (
+        <li class="border-b border-line">
+          <a href={l(lang, `areas/${a.id}/`)} class="group grid gap-1 py-5 sm:grid-cols-[16rem_1fr_auto] sm:gap-6">
+            <span class="font-medium group-hover:text-accent">{a.name[lang]}</span>
+            <span class="text-muted">{a.description[lang]}</span>
+            <span class="font-mono text-sm text-muted">{docs.filter((d) => d.entry.data.area === a.id).length} {docs.filter((d) => d.entry.data.area === a.id).length === 1 ? T.home.doc : T.home.docs}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</Base>

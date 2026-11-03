@@ -1,0 +1,91 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import SearchDialog from '../components/SearchDialog.astro';
+import { ui, languages, type Lang } from '../i18n/ui';
+import { base, asset } from '../lib/url';
+
+interface Props { lang: Lang; title: string; description?: string }
+const { lang, title, description } = Astro.props;
+const T = ui[lang];
+const full = title === T.siteName ? title : `${title} | ${T.siteName}`;
+const desc = description ?? T.home.lead;
+const other = (Object.keys(languages) as Lang[]).find((x) => x !== lang)!;
+
+// --- CORREÇÃO DO IDIOMA AQUI ---
+const segments = Astro.url.pathname.split('/');
+const langIndex = segments.indexOf(lang);
+if (langIndex !== -1) {
+  segments[langIndex] = other;
+}
+const altHref = new URL(segments.join('/'), Astro.site);
+// -------------------------------
+---
+<!doctype html>
+<html lang={T.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{full}</title>
+    <meta name="description" content={desc} />
+    <link rel="icon" type="image/svg+xml" href={asset('images/favicon.svg')} />
+    <link rel="alternate" hreflang={other} href={altHref.href} />
+    <meta property="og:title" content={full} />
+    <meta property="og:description" content={desc} />
+    <script is:inline>
+      (function () {
+        try {
+          var s = localStorage.getItem('theme');
+          var dark = s ? s === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.classList.toggle('dark', dark);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="min-h-screen antialiased">
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-accent focus:px-3 focus:py-2 focus:text-accent-ink">{T.skip}</a>
+    <Header lang={lang} />
+    <main id="main"><slot /></main>
+    <Footer lang={lang} />
+    <SearchDialog lang={lang} />
+
+    <dialog id="lightbox" class="m-auto max-h-[92vh] max-w-[94vw] overflow-auto rounded-lg border border-line bg-bg p-2">
+      <img alt="" class="block max-h-[86vh] max-w-full" />
+    </dialog>
+
+    <div hidden id="copy-labels" data-copy={T.copy.copy} data-done={T.copy.done}></div>
+
+    <script>
+      // Botão "Copiar" em todos os blocos de código
+      const labels = document.getElementById('copy-labels')!.dataset;
+      document.querySelectorAll<HTMLPreElement>('.prose pre[data-language]:not([data-language="mermaid"])').forEach((pre) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'code-wrap';
+        pre.replaceWith(wrap);
+        wrap.append(pre);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'copy-btn';
+        btn.textContent = labels.copy!;
+        btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(pre.innerText.replace(/\n$/, ''));
+            btn.textContent = labels.done!;
+            btn.dataset.done = 'true';
+            setTimeout(() => { btn.textContent = labels.copy!; delete btn.dataset.done; }, 1800);
+          } catch {}
+        });
+        wrap.append(btn);
+      });
+
+      // Galeria de evidências: clique para ampliar
+      const box = document.getElementById('lightbox') as HTMLDialogElement;
+      const big = box.querySelector('img')!;
+      document.querySelectorAll<HTMLImageElement>('img[data-zoom]').forEach((img) => {
+        img.addEventListener('click', () => { big.src = img.src; big.alt = img.alt; box.showModal(); });
+      });
+      box.addEventListener('click', () => box.close());
+    </script>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+---
+import { ui, type Lang } from '../i18n/ui';
+import { getArea } from '../data/areas';
+import { l } from '../lib/url';
+import type { DocItem } from '../lib/docs';
+interface Props { lang: Lang; item: DocItem }
+const { lang, item } = Astro.props;
+const T = ui[lang];
+const d = item.entry.data;
+---
+<li data-doc data-area={d.area} data-text={`${d.title} ${d.docId} ${d.tags.join(' ')}`.toLowerCase()} class="border-b border-line">
+  <a href={l(lang, `docs/${item.slug}/`)} class="group grid gap-1 py-4 sm:grid-cols-[8.5rem_1fr_auto] sm:gap-6">
+    <span class="font-mono text-sm text-muted">{d.docId}</span>
+    <span>
+      <span class="block font-medium group-hover:text-accent">{d.title}</span>
+      <span class="mt-1 block text-sm text-muted">{d.summary}</span>
+      <span class="mt-1 block text-sm text-muted">{getArea(d.area).name[lang]} · {T.labels.level[d.level]}</span>
+    </span>
+    <span class="self-start rounded border border-line px-2 py-0.5 text-xs text-muted">{T.labels.status[d.status]}</span>
+  </a>
+</li>

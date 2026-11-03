@@ -1,0 +1,28 @@
+---
+import { ui, type Lang } from '../i18n/ui';
+import { asset } from '../lib/url';
+interface Props {
+  n: number | string;
+  title: string;
+  src: string;
+  alt: string;
+  caption?: string;
+  description?: string;
+  interpretation?: string;
+  lang?: Lang;
+}
+const { n, title, src, alt, caption, description, interpretation, lang = 'pt' } = Astro.props;
+const T = ui[lang].evidence;
+const id = `evidencia-${n}`;
+---
+<figure class="evidence not-prose" id={id}>
+  <figcaption class="border-b border-line px-4 py-2 text-sm font-medium">{T.label} {String(n).padStart(2, '0')} — {title}</figcaption>
+  <img src={src.startsWith('http') ? src : asset(src)} alt={alt} loading="lazy" data-zoom title={T.zoom} />
+  {caption && <p class="border-t border-line px-4 py-2 text-sm text-muted">Figura {n}. {caption}</p>}
+  {(description || interpretation) && (
+    <div class="grid gap-4 border-t border-line bg-bg p-4 text-sm md:grid-cols-2">
+      {description && <div><p class="mb-1 font-semibold">{T.description}</p><p class="text-muted">{description}</p></div>}
+      {interpretation && <div><p class="mb-1 font-semibold">{T.interpretation}</p><p class="text-muted">{interpretation}</p></div>}
+    </div>
+  )}
+</figure>

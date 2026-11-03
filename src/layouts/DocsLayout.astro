@@ -1,0 +1,132 @@
+---
+import Base from './Base.astro';
+import { ui, type Lang } from '../i18n/ui';
+import { getArea } from '../data/areas';
+import { l } from '../lib/url';
+import { fmtDate, type DocItem } from '../lib/docs';
+import type { MarkdownHeading } from 'astro';
+
+interface Props { lang: Lang; item: DocItem; headings: MarkdownHeading[] }
+const { lang, item, headings } = Astro.props;
+const T = ui[lang];
+const d = item.entry.data;
+const steps = headings.filter((h) => h.depth === 2);
+
+const spec: [string, string][] = [
+  [T.doc.id, d.docId],
+  [T.doc.category, getArea(d.area).name[lang]],
+  [T.doc.revision, d.revision],
+  [T.doc.origin, T.labels.origin[d.origin]],
+  [T.doc.level, T.labels.level[d.level]],
+  [T.doc.author, d.author],
+  [T.doc.created, fmtDate(d.created, lang)],
+  [T.doc.updated, fmtDate(d.updated, lang)],
+];
+if (d.environment) spec.push([T.doc.environment, d.environment]);
+---
+<Base lang={lang} title={d.title} description={d.summary}>
+  <div class="mx-auto grid max-w-6xl gap-10 px-4 py-10 lg:grid-cols-[15rem_minmax(0,1fr)]">
+    <aside class="lg:sticky lg:top-24 lg:self-start">
+      <a href={l(lang, 'docs/')} class="text-sm text-muted hover:text-ink">← {T.doc.back}</a>
+      <nav aria-label={T.doc.toc} class="mt-5">
+        <p class="mb-2 text-sm font-semibold">{T.doc.toc}</p>
+        <ol class="space-y-0.5 border-l border-line text-sm" id="toc">
+          {steps.map((h) => (
+            <li><a href={`#${h.slug}`} data-toc-link class="-ml-px block border-l-2 border-transparent py-1 pl-3 text-muted hover:text-ink">{h.text}</a></li>
+          ))}
+        </ol>
+      </nav>
+    </aside>
+
+    <article class="min-w-0">
+      <p class="font-mono text-sm text-muted">{d.docId} · {getArea(d.area).name[lang]}</p>
+      <h1 class="mt-1 text-3xl font-semibold leading-tight md:text-4xl">{d.title}</h1>
+      <p class="mt-3 max-w-[65ch] text-lg text-muted">{d.summary}</p>
+
+      {d.status !== 'published' && (
+        <p class="mt-5 rounded border border-line bg-[var(--warn-bg)] px-4 py-2 text-sm text-[var(--warn)]" role="note">
+          {d.status === 'example' ? T.doc.exampleBanner : T.doc.draftBanner}
+        </p>
+      )}
+
+      <dl class="mt-6 grid grid-cols-2 gap-x-6 gap-y-3 rounded border border-line bg-surface p-4 text-sm sm:grid-cols-4">
+        {spec.map(([k, v]) => (
+          <div><dt class="text-muted">{k}</dt><dd class="font-medium">{v}</dd></div>
+        ))}
+      </dl>
+
+      <div class="prose prose-lg mt-8 max-w-none md:prose-base"><slot /></div>
+
+      <nav class="mt-14 flex flex-wrap justify-between gap-3 border-t border-line pt-6" id="step-nav" aria-label="Etapas">
+        <span></span>
+      </nav>
+      <script is:inline define:vars={{ steps, prev: T.doc.previous, next: T.doc.next }}>
+        // Navegação entre etapas: anterior/próxima com base nos H2 do documento
+        (function () {
+          var nav = document.getElementById('step-nav');
+          if (!nav || !steps.length) return;
+          nav.innerHTML = '';
+          function link(s, label, align) {
+            var a = document.createElement('a');
+            a.href = '#' + s.slug;
+            a.className = 'max-w-xs rounded border border-line px-4 py-3 text-sm hover:border-[var(--accent)] ' + (align === 'r' ? 'ml-auto text-right' : '');
+            a.innerHTML = '<span class="block text-[var(--muted)]"></span><span class="block font-medium"></span>';
+            a.children[0].textContent = label;
+            a.children[1].textContent = s.text;
+            return a;
+          }
+          function current() {
+            var idx = 0;
+            steps.forEach(function (s, i) {
+              var el = document.getElementById(s.slug);
+              if (el && el.getBoundingClientRect().top < 140) idx = i;
+            });
+            return idx;
+          }
+          function render() {
+            var i = current();
+            nav.innerHTML = '';
+            if (steps[i - 1]) nav.append(link(steps[i - 1], '← ' + prev, 'l'));
+            if (steps[i + 1]) nav.append(link(steps[i + 1], next + ' →', 'r'));
+          }
+          render();
+          var t; window.addEventListener('scroll', function () { clearTimeout(t); t = setTimeout(render, 120); }, { passive: true });
+        })();
+      </script>
+    </article>
+  </div>
+
+  <script>
+    // Destaque do capítulo atual no índice lateral
+    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'));
+    const map = new Map(links.map((a) => [a.getAttribute('href')!.slice(1), a]));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          links.forEach((a) => { a.classList.remove('!border-accent', '!text-ink', 'font-medium'); });
+          map.get(e.target.id)?.classList.add('!border-accent', '!text-ink', 'font-medium');
+        }
+      });
+    }, { rootMargin: '-100px 0px -70% 0px' });
+    map.forEach((_, id) => { const el = document.getElementById(id); if (el) io.observe(el); });
+
+    // Diagramas Mermaid: carregados apenas quando a página tem um
+    const blocks = Array.from(document.querySelectorAll<HTMLElement>('code.language-mermaid')).map((c) => c.parentElement as HTMLPreElement);
+    if (blocks.length) {
+      import('mermaid').then(async ({ default: mermaid }) => {
+        const dark = document.documentElement.classList.contains('dark');
+        mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default', securityLevel: 'strict' });
+        let i = 0;
+        for (const pre of blocks) {
+          try {
+            const { svg } = await mermaid.render(`mmd-${i++}`, pre.textContent ?? '');
+            const div = document.createElement('div');
+            div.className = 'mermaid-rendered';
+            div.innerHTML = svg;
+            pre.replaceWith(div);
+          } catch { /* mantém o código visível se o diagrama for inválido */ }
+        }
+      });
+    }
+  </script>
+</Base>

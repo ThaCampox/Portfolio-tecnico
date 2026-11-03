@@ -1,0 +1,93 @@
+---
+import Base from '../../layouts/Base.astro';
+import { ui, langPaths, type Lang } from '../../i18n/ui';
+import { profile, type Entry } from '../../data/profile';
+import { asset } from '../../lib/url'; 
+
+export function getStaticPaths() { return langPaths(); }
+const lang = Astro.params.lang as Lang;
+const T = ui[lang];
+const sections: [string, Entry[]][] = [
+  [T.about.experience, profile.experience],
+  [T.about.education, profile.education],
+  [T.about.certifications, profile.certifications],
+];
+---
+<Base lang={lang} title={T.about.title} description={profile.summary[lang]}>
+  <div class="mx-auto max-w-4xl px-4 py-12 md:py-20">
+    
+    <!-- Topo: Foto e Apresentação -->
+    <div class="flex flex-col items-center gap-10 md:flex-row md:items-center md:gap-14">
+      
+      <!-- Container da Foto -->
+      <div class="shrink-0 relative group">
+        <div class="absolute -inset-1 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 opacity-30 blur-lg transition duration-500 group-hover:opacity-60"></div>
+        
+        <div class="relative flex h-48 w-48 md:h-56 md:w-56 items-center justify-center rounded-full border-2 border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-[#0a0f1c] overflow-hidden">
+          <img 
+            src={asset('images/logo.png')} 
+            alt="Thaina Campos" 
+            class="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-110" 
+          />
+        </div>
+      </div>
+
+      <!-- Textos -->
+      <div class="text-center md:text-left flex-1">
+        <span class="inline-block rounded-full bg-blue-100 dark:bg-blue-500/10 px-3 py-1 text-sm font-medium text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20 mb-4">
+          {profile.role[lang]}
+        </span>
+        
+        <h1 class="text-4xl font-extrabold md:text-5xl tracking-tight bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 dark:from-cyan-400 dark:via-blue-500 dark:to-purple-500 bg-clip-text text-transparent">
+          {profile.name}
+        </h1>
+        
+        <p class="mt-5 text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+          {profile.summary[lang]}
+        </p>
+      </div>
+    </div>
+
+    <hr class="my-12 border-slate-200 dark:border-slate-800" />
+
+    <!-- Resto do Conteúdo -->
+    <div class="space-y-12">
+      <!-- Competências (CORRIGIDO AQUI) -->
+      <div>
+        <h2 class="text-2xl font-bold tracking-tight mb-5">{T.about.skills}</h2>
+        <ul class="flex flex-wrap gap-2 text-sm">
+          {profile.skills.map((s) => (
+            <li class="rounded-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50 px-4 py-2 font-medium text-slate-700 dark:text-slate-300 transition-all duration-300 hover:border-cyan-500 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-default">
+              {s}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Experiência, Formação, etc -->
+      {sections.map(([title, entries]) => (
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight mb-5">{title}</h2>
+          {entries.length ? (
+            <ul class="relative border-l border-slate-300 dark:border-slate-800 ml-3 space-y-8">
+              {entries.map((e) => (
+                <li class="ml-6">
+                  <span class="absolute -left-[5px] mt-1.5 h-2.5 w-2.5 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.5)]"></span>
+                  <p class="font-semibold text-lg text-slate-800 dark:text-slate-200">{e.title[lang]}</p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400 font-mono mt-1">{[e.place, e.period].filter(Boolean).join(' · ')}</p>
+                  {e.description && <p class="mt-2 text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{e.description[lang]}</p>}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <!-- Caixa Vazia CORRIGIDA AQUI -->
+            <div class="mt-4 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/20 p-6 text-center">
+               <p class="text-sm text-slate-500 dark:text-slate-400">Nenhuma informação cadastrada ainda.</p>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+
+  </div>
+</Base>

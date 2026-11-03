@@ -1,0 +1,145 @@
+---
+title: Diagnóstico de dispositivos USB e HID com PowerShell
+summary: Como listar dispositivos USB e HID, interpretar o status reportado pelo Windows e isolar a causa quando um periférico não é reconhecido.
+docId: DOC-SUP-001
+area: support
+level: intermediate
+origin: study
+status: example
+revision: "1.0"
+created: 2026-11-02
+updated: 2026-11-02
+environment: Windows 11, PowerShell 5.1
+tags: [usb, hid, powershell, pnp, periféricos]
+---
+import Evidence from '../../../components/Evidence.astro';
+import Callout from '../../../components/Callout.astro';
+
+<Callout type="info" title="Modelo de documento">
+Este arquivo é o modelo padrão do portfólio. Troque os textos e as imagens pelos do seu ambiente real antes de publicar.
+</Callout>
+
+## 01. Identificação
+
+- **Procedimento:** diagnóstico de dispositivos USB e HID.
+- **Categoria:** Suporte Técnico, subcategoria periféricos.
+- **Origem:** estudo técnico (declarado no cabeçalho).
+- **Versão:** 1.0.
+
+## 02. Objetivo e escopo
+
+**Problema:** teclado, mouse ou outro periférico USB não responde ou não é reconhecido.
+
+**Dentro do escopo:** listar dispositivos presentes, ler o status do Plug and Play, consultar o código de problema e verificar eventos recentes.
+
+**Fora do escopo:** reparo de hardware, firmware de periféricos e políticas de bloqueio de USB.
+
+## 03. Ambiente técnico
+
+| Item | Valor |
+| --- | --- |
+| Sistema operacional | Windows 11 (indique a versão e a build) |
+| Shell | Windows PowerShell 5.1 |
+| Módulo | PnpDevice (nativo do Windows) |
+
+## 04. Pré-requisitos
+
+- Sessão PowerShell. Os comandos de leitura funcionam sem privilégios elevados.
+- Nenhum comando deste procedimento altera o sistema.
+- Anote o dispositivo e a porta onde ele foi conectado antes de começar.
+
+## 05. Procedimento técnico
+
+```mermaid
+flowchart LR
+  A[1 Identificar] --> B[2 Investigar]
+  B --> C[3 Diagnosticar]
+  C --> D[4 Aplicar solução]
+  D --> E[5 Validar]
+```
+
+### Etapa 1: identificação
+
+Confirme o sintoma: qual dispositivo, em qual porta, desde quando. Teste a mesma porta com outro periférico e o mesmo periférico em outra porta.
+
+### Etapa 2: investigação
+
+Liste os dispositivos USB e HID presentes:
+
+```powershell
+Get-PnpDevice -Class USB, HIDClass -PresentOnly |
+  Select-Object Status, Class, FriendlyName, InstanceId |
+  Sort-Object Class, FriendlyName |
+  Format-Table -AutoSize
+```
+
+<Evidence
+  n={1}
+  title="Listagem de dispositivos USB e HID"
+  src="images/evidence-placeholder.svg"
+  alt="Terminal PowerShell com a lista de dispositivos USB e HID e seus status"
+  caption="Saída do Get-PnpDevice com o status de cada dispositivo."
+  description="O comando consulta o Plug and Play e lista os dispositivos presentes, com classe e status."
+  interpretation="Status OK indica que o Windows reconhece o dispositivo sem erro reportado naquele momento. Error ou Unknown pedem a próxima etapa."
+/>
+
+### Etapa 3: diagnóstico
+
+Filtre o que não está OK e leia o código de problema:
+
+```powershell
+$problemas = Get-PnpDevice -PresentOnly | Where-Object Status -ne 'OK'
+$problemas | ForEach-Object {
+  [pscustomobject]@{
+    Nome   = $_.FriendlyName
+    Status = $_.Status
+    Codigo = (Get-PnpDeviceProperty -InstanceId $_.InstanceId -KeyName 'DEVPKEY_Device_ProblemCode').Data
+  }
+}
+```
+
+Consulte os eventos de configuração de dispositivos:
+
+```powershell
+Get-WinEvent -LogName 'Microsoft-Windows-Kernel-PnP/Configuration' -MaxEvents 20 |
+  Select-Object TimeCreated, Id, Message
+```
+
+### Etapa 4: aplicação da solução
+
+Aplique uma ação por vez, da menos para a mais invasiva: trocar de porta, remover e reconectar, atualizar o driver pelo fabricante, reiniciar o computador.
+
+### Etapa 5: validação
+
+Repita o comando da etapa 2 e confirme o status OK. Teste o dispositivo em uso real (digitar, mover o mouse).
+
+## 06. Evidências
+
+Registre aqui os prints numerados, os comandos executados e os resultados. Cada print deve ter legenda, descrição técnica e interpretação, como na Evidência 1.
+
+## 07. Troubleshooting
+
+| Sintoma | Causa possível | Alternativa |
+| --- | --- | --- |
+| Dispositivo some da lista | Cabo, porta ou energia | Outra porta, outro cabo, conexão direta (sem hub) |
+| Status Error com código | Driver ausente ou corrompido | Reinstalar o driver do fabricante |
+| Funciona em outra porta | Porta ou controlador com falha | Verificar o controlador USB e a energia |
+
+## 08. Riscos e reversão
+
+- Os comandos de diagnóstico são somente leitura.
+- Desinstalar um driver pode deixar o periférico indisponível até a reinstalação. Anote a versão atual antes.
+- Em caso de problema após atualizar o driver, use a opção de reverter o driver nas propriedades do dispositivo.
+
+## 09. Resultado e conclusão
+
+- **Esperado:** dispositivo com status OK e funcionando.
+- **Obtido:** preencher com o resultado real.
+- **Limitações:** o status OK mostra apenas o que o Windows reporta, não garante que o hardware esteja saudável.
+- **Prevenção:** manter drivers atualizados e evitar hubs sem alimentação própria.
+
+## 10. Referências
+
+- Documentação oficial do cmdlet `Get-PnpDevice` (Microsoft Learn).
+- Documentação oficial do cmdlet `Get-WinEvent` (Microsoft Learn).
+- Script de apoio no repositório: `scripts/powershell/Get-UsbHidStatus.ps1`.

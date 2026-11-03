@@ -1,0 +1,146 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { ui, langPaths, type Lang } from '../../../i18n/ui';
+import { areas } from '../../../data/areas';
+import { getDocs } from '../../../lib/docs';
+
+export function getStaticPaths() { return langPaths(); }
+const lang = Astro.params.lang as Lang;
+const T = ui[lang];
+const docs = await getDocs(lang);
+---
+<Base lang={lang} title={T.docs.title} description={T.docs.lead}>
+  <div class="mx-auto max-w-4xl px-4 py-12 md:py-20">
+    
+    <!-- Cabeçalho -->
+    <div class="mb-10">
+      <h1 class="text-4xl font-extrabold tracking-tight md:text-5xl text-slate-900 dark:text-white">
+        {T.docs.title}
+      </h1>
+      <p class="mt-4 text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+        {T.docs.lead}
+      </p>
+    </div>
+
+    <!-- Barra de Ferramentas (Filtros + Busca) -->
+    <div class="flex flex-col gap-5 mb-8">
+      
+      <!-- Filtros em formato de botões de texto/pílula -->
+      <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Filtros">
+        <button 
+          type="button" 
+          data-filter="all" 
+          aria-pressed="true" 
+          class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors border border-transparent aria-pressed:bg-slate-100 aria-pressed:text-slate-900 dark:aria-pressed:bg-slate-800 dark:aria-pressed:text-white text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+        >
+          {T.docs.all}
+        </button>
+        {areas.map((a) => (
+          <button 
+            type="button" 
+            data-filter={a.id} 
+            aria-pressed="false" 
+            class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors border border-transparent aria-pressed:bg-slate-100 aria-pressed:text-slate-900 dark:aria-pressed:bg-slate-800 dark:aria-pressed:text-white text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+          >
+            {a.name[lang]}
+          </button>
+        ))}
+      </div>
+
+      <!-- Busca e Contador -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-slate-200 dark:border-slate-800 pt-5">
+        <div class="relative w-full max-w-sm">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+          </svg>
+          <input 
+            id="doc-filter" 
+            type="search" 
+            placeholder={T.docs.filterText} 
+            aria-label={T.docs.filterText} 
+            class="w-full rounded-md border border-slate-200 bg-white py-2 pl-9 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/20 dark:border-slate-800 dark:bg-slate-900 dark:text-white dark:focus:border-blue-400 transition-all" 
+          />
+        </div>
+        <p class="font-mono text-sm text-slate-500 dark:text-slate-400">
+          <span id="doc-count" class="font-bold text-slate-900 dark:text-white">{docs.length}</span> {T.docs.count}
+        </p>
+      </div>
+    </div>
+
+    <!-- Lista de Documentos (Estilo Editorial) -->
+    <div class="flex flex-col border-t border-slate-200 dark:border-slate-800" id="doc-list">
+      {docs.map((item) => (
+        <a 
+          href={`/${lang}/docs/${item.slug}/`}
+          data-doc
+          data-area={item.entry.data.area}
+          data-text={`${item.entry.data.title.toLowerCase()} ${item.entry.data.description?.toLowerCase() || ''} ${item.entry.data.docId.toLowerCase()} ${item.entry.data.area.toLowerCase()}`}
+          class="group relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-6 border-b border-slate-200 dark:border-slate-800 transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/50 sm:px-4 sm:-mx-4 rounded-lg"
+        >
+          <div class="flex-1">
+            <!-- Cabeçalho do item: ID + Área + Status -->
+            <div class="flex flex-wrap items-center gap-3 mb-2">
+              <span class="font-mono text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                {item.entry.data.docId}
+              </span>
+              <span class="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                {item.entry.data.area}
+              </span>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-500/20">
+                {T.labels.status[item.entry.data.status]}
+              </span>
+            </div>
+            
+            <!-- Título -->
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              {item.entry.data.title}
+            </h2>
+            
+            <!-- Descrição -->
+            <p class="mt-1.5 text-sm text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2">
+              {item.entry.data.description}
+            </p>
+          </div>
+          
+          <!-- Seta indicativa -->
+          <div class="hidden sm:flex shrink-0 items-center justify-center h-10 w-10 rounded-full border border-slate-200 dark:border-slate-700 text-slate-400 group-hover:border-blue-500 group-hover:text-blue-600 dark:group-hover:border-blue-400 dark:group-hover:text-blue-400 transition-all">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </a>
+      ))}
+    </div>
+    
+    <!-- Mensagem de vazio -->
+    <p id="doc-empty" hidden class="mt-12 text-center text-slate-500 dark:text-slate-400 py-12 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl bg-slate-50 dark:bg-slate-900/50">
+      {T.docs.empty}
+    </p>
+  </div>
+
+  <!-- O SEU SCRIPT DE FILTRO (MANTIDO INTACTO) -->
+  <script>
+    const items = Array.from(document.querySelectorAll<HTMLElement>('[data-doc]'));
+    const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+    const input = document.getElementById('doc-filter') as HTMLInputElement;
+    const count = document.getElementById('doc-count')!;
+    const empty = document.getElementById('doc-empty')!;
+    let area = 'all';
+
+    function apply() {
+      const q = input.value.trim().toLowerCase();
+      let n = 0;
+      items.forEach((el) => {
+        const ok = (area === 'all' || el.dataset.area === area) && (!q || el.dataset.text!.includes(q));
+        el.hidden = !ok;
+        if (ok) n++;
+      });
+      count.textContent = String(n);
+      empty.hidden = n > 0;
+    }
+    buttons.forEach((b) => b.addEventListener('click', () => {
+      area = b.dataset.filter!;
+      buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      apply();
+    }));
+    input.addEventListener('input', apply);
+  </script>
+</Base>

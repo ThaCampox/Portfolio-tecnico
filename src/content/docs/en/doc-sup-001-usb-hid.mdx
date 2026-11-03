@@ -1,0 +1,146 @@
+---
+title: USB and HID device diagnostics with PowerShell
+summary: How to list USB and HID devices, read the status Windows reports and isolate the cause when a peripheral is not recognized.
+docId: DOC-SUP-001
+area: support
+level: intermediate
+origin: study
+status: example
+revision: "1.0"
+created: 2026-11-02
+updated: 2026-11-02
+environment: Windows 11, PowerShell 5.1
+tags: [usb, hid, powershell, pnp, peripherals]
+---
+import Evidence from '../../../components/Evidence.astro';
+import Callout from '../../../components/Callout.astro';
+
+<Callout type="info" title="Document template">
+This file is the portfolio's standard template. Replace the text and images with the ones from your real environment before publishing.
+</Callout>
+
+## 01. Identification
+
+- **Procedure:** USB and HID device diagnostics.
+- **Category:** IT Support, sub-category peripherals.
+- **Origin:** technical study (declared in the header).
+- **Version:** 1.0.
+
+## 02. Objective and scope
+
+**Problem:** a keyboard, mouse or other USB peripheral does not respond or is not recognized.
+
+**In scope:** listing present devices, reading the Plug and Play status, checking the problem code and reviewing recent events.
+
+**Out of scope:** hardware repair, peripheral firmware and USB blocking policies.
+
+## 03. Technical environment
+
+| Item | Value |
+| --- | --- |
+| Operating system | Windows 11 (state version and build) |
+| Shell | Windows PowerShell 5.1 |
+| Module | PnpDevice (built into Windows) |
+
+## 04. Prerequisites
+
+- A PowerShell session. The read-only commands work without elevation.
+- No command in this procedure changes the system.
+- Note the device and the port it was plugged into before you start.
+
+## 05. Technical procedure
+
+```mermaid
+flowchart LR
+  A[1 Identify] --> B[2 Investigate]
+  B --> C[3 Diagnose]
+  C --> D[4 Apply fix]
+  D --> E[5 Validate]
+```
+
+### Step 1: identification
+
+Confirm the symptom: which device, which port, since when. Try the same port with another peripheral and the same peripheral on another port.
+
+### Step 2: investigation
+
+List the USB and HID devices that are present:
+
+```powershell
+Get-PnpDevice -Class USB, HIDClass -PresentOnly |
+  Select-Object Status, Class, FriendlyName, InstanceId |
+  Sort-Object Class, FriendlyName |
+  Format-Table -AutoSize
+```
+
+<Evidence
+  lang="en"
+  n={1}
+  title="USB and HID device listing"
+  src="images/evidence-placeholder.svg"
+  alt="PowerShell terminal listing USB and HID devices with their status"
+  caption="Get-PnpDevice output showing each device's status."
+  description="The command queries Plug and Play and lists present devices with their class and status."
+  interpretation="A status of OK means Windows recognizes the device with no error reported at that moment. Error or Unknown call for the next step."
+/>
+
+### Step 3: diagnosis
+
+Filter what is not OK and read the problem code:
+
+```powershell
+$problems = Get-PnpDevice -PresentOnly | Where-Object Status -ne 'OK'
+$problems | ForEach-Object {
+  [pscustomobject]@{
+    Name   = $_.FriendlyName
+    Status = $_.Status
+    Code   = (Get-PnpDeviceProperty -InstanceId $_.InstanceId -KeyName 'DEVPKEY_Device_ProblemCode').Data
+  }
+}
+```
+
+Check the device configuration events:
+
+```powershell
+Get-WinEvent -LogName 'Microsoft-Windows-Kernel-PnP/Configuration' -MaxEvents 20 |
+  Select-Object TimeCreated, Id, Message
+```
+
+### Step 4: applying the fix
+
+Apply one action at a time, from least to most invasive: switch ports, unplug and replug, update the driver from the vendor, restart the computer.
+
+### Step 5: validation
+
+Run the Step 2 command again and confirm the OK status. Test the device in real use (typing, moving the mouse).
+
+## 06. Evidence
+
+Record numbered screenshots, executed commands and results here. Each screenshot needs a caption, a technical description and an interpretation, as in Evidence 1.
+
+## 07. Troubleshooting
+
+| Symptom | Possible cause | Alternative |
+| --- | --- | --- |
+| Device disappears from the list | Cable, port or power | Another port, another cable, direct connection (no hub) |
+| Error status with a code | Missing or corrupted driver | Reinstall the vendor driver |
+| Works on another port | Faulty port or controller | Check the USB controller and power |
+
+## 08. Risks and rollback
+
+- The diagnostic commands are read-only.
+- Uninstalling a driver can leave the peripheral unavailable until it is reinstalled. Note the current version first.
+- If a problem appears after a driver update, use the roll back driver option in the device properties.
+
+## 09. Result and conclusion
+
+- **Expected:** device with OK status and working.
+- **Obtained:** fill in with the real result.
+- **Limitations:** OK only shows what Windows reports; it does not guarantee the hardware is healthy.
+- **Prevention:** keep drivers updated and avoid hubs without their own power supply.
+
+## 10. References
+
+- Official documentation for the `Get-PnpDevice` cmdlet (Microsoft Learn).
+- Official documentation for the `Get-WinEvent` cmdlet (Microsoft Learn).
+- Supporting script in the repository: `scripts/powershell/Get-UsbHidStatus.ps1`.
