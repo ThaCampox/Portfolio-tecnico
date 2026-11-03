@@ -52,12 +52,12 @@ const sections: [string, Entry[]][] = [
 
     <!-- Resto do Conteúdo -->
     <div class="space-y-12">
-      <!-- Competências (CORRIGIDO AQUI) -->
+      <!-- Competências -->
       <div>
-        <h2 class="text-2xl font-bold tracking-tight mb-5">{T.about.skills}</h2>
+        <h2 class="text-2xl font-bold tracking-tight mb-5 text-slate-900 dark:text-white">{T.about.skills}</h2>
         <ul class="flex flex-wrap gap-2 text-sm">
           {profile.skills.map((s) => (
-            <li class="rounded-full border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50 px-4 py-2 font-medium text-slate-700 dark:text-slate-300 transition-all duration-300 hover:border-cyan-500 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-slate-200 dark:hover:bg-slate-800 cursor-default">
+            <li class="rounded-full border border-slate-300 bg-slate-100 px-4 py-2 font-medium text-slate-700 transition-all duration-300 hover:border-cyan-500 hover:text-cyan-600 hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:border-cyan-500 dark:hover:text-cyan-400 dark:hover:bg-slate-800 cursor-default">
               {s}
             </li>
           ))}
@@ -67,9 +67,9 @@ const sections: [string, Entry[]][] = [
       <!-- Experiência, Formação, etc -->
       {sections.map(([title, entries]) => (
         <div>
-          <h2 class="text-2xl font-bold tracking-tight mb-5">{title}</h2>
+          <h2 class="text-2xl font-bold tracking-tight mb-5 text-slate-900 dark:text-white">{title}</h2>
           {entries.length ? (
-            <ul class="relative border-l border-slate-300 dark:border-slate-800 ml-3 space-y-8">
+            <ul class="relative border-l border-slate-200 dark:border-slate-800 ml-3 space-y-8">
               {entries.map((e) => (
                 <li class="ml-6">
                   <span class="absolute -left-[5px] mt-1.5 h-2.5 w-2.5 rounded-full bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.5)]"></span>
@@ -80,8 +80,8 @@ const sections: [string, Entry[]][] = [
               ))}
             </ul>
           ) : (
-            <!-- Caixa Vazia CORRIGIDA AQUI -->
-            <div class="mt-4 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/20 p-6 text-center">
+            /* Aqui estava o erro, agora está no formato certo */
+            <div class="mt-4 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center dark:border-slate-700 dark:bg-slate-800/20">
                <p class="text-sm text-slate-500 dark:text-slate-400">Nenhuma informação cadastrada ainda.</p>
             </div>
           )}
